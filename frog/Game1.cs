@@ -1,7 +1,10 @@
 ﻿using System.Collections.Generic;
+using frog.Screens;
+using frog.Things;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using static frog.GameState;
 
 namespace frog
 {
@@ -20,7 +23,6 @@ namespace frog
         private List<Character> _characters = new List<Character>();
         private Character _player;
 
-        //private Texture2D _frogTexture;
         private Texture2D _backgroundTexture;
         private Texture2D _titleTexture;
         private Texture2D _characterCreationTexture;
@@ -40,8 +42,8 @@ namespace frog
 
         private SpriteFont _font;
 
-        private State _state;
-        private enum State { TitleScreen, CharacterCreation, MainGame };
+        private GameState _gameState;
+        private IStage _currentStage;
 
         public Game1()
         {
@@ -61,7 +63,7 @@ namespace frog
                 _graphics.PreferredBackBufferHeight / 2);
             _frogSpeed = 100f;
 
-            _state = State.TitleScreen;
+            _gameState = new GameState();
 
             base.Initialize();
         }
@@ -101,19 +103,18 @@ namespace frog
             _font = this.Content.Load<SpriteFont>("dearLovely");
 
             // characters
-            _characters.Add(new Character("Ash", Pronoun.They, this.Content.Load<Texture2D>("ash"), this.Content.Load<Texture2D>("big_ash")));
-            _characters.Add(new Character("Bigstick", Pronoun.They, this.Content.Load<Texture2D>("bigstick"), this.Content.Load<Texture2D>("big_bigstick")));
-            _characters.Add(new Character("Cubi", Pronoun.They, this.Content.Load<Texture2D>("cubi"), this.Content.Load<Texture2D>("big_cubi")));
-            _characters.Add(new Character("Juicebox", Pronoun.They, this.Content.Load<Texture2D>("juicebox"), this.Content.Load<Texture2D>("big_juicebox")));
-            _characters.Add(new Character("Kate", Pronoun.They, this.Content.Load<Texture2D>("kate"), this.Content.Load<Texture2D>("big_kate")));
-            _characters.Add(new Character("Lastone", Pronoun.They, this.Content.Load<Texture2D>("lastone"), this.Content.Load<Texture2D>("big_lastone")));
-            _characters.Add(new Character("Mike", Pronoun.They, this.Content.Load<Texture2D>("mike"), this.Content.Load<Texture2D>("big_mike")));
-            _characters.Add(new Character("Omar", Pronoun.They, this.Content.Load<Texture2D>("omar"), this.Content.Load<Texture2D>("big_omar")));
-            _characters.Add(new Character("Pea", Pronoun.They, this.Content.Load<Texture2D>("pea"), this.Content.Load<Texture2D>("big_pea")));
-            _characters.Add(new Character("Shim", Pronoun.They, this.Content.Load<Texture2D>("shim"), this.Content.Load<Texture2D>("big_shim")));
-            _characters.Add(new Character("Tode", Pronoun.They, this.Content.Load<Texture2D>("tode"), this.Content.Load<Texture2D>("big_tode")));
-            _characters.Add(new Character("Willow", Pronoun.They, this.Content.Load<Texture2D>("willow"), this.Content.Load<Texture2D>("big_willow")));
-
+            _characters.Add(new Character("Ash", Pronoun.They, this.Content.Load<Texture2D>("ash"), this.Content.Load<Texture2D>("big_ash"), new Occupation("fashion")));
+            _characters.Add(new Character("Bigstick", Pronoun.They, this.Content.Load<Texture2D>("bigstick"), this.Content.Load<Texture2D>("big_bigstick"), new Occupation("cycling")));
+            _characters.Add(new Character("Cubi", Pronoun.They, this.Content.Load<Texture2D>("cubi"), this.Content.Load<Texture2D>("big_cubi"), new Occupation("plumber")));
+            _characters.Add(new Character("Juicebox", Pronoun.They, this.Content.Load<Texture2D>("juicebox"), this.Content.Load<Texture2D>("big_juicebox"), new Occupation("glassblower")));
+            _characters.Add(new Character("Kate", Pronoun.They, this.Content.Load<Texture2D>("kate"), this.Content.Load<Texture2D>("big_kate"), new Occupation("makeup")));
+            _characters.Add(new Character("Lastone", Pronoun.They, this.Content.Load<Texture2D>("lastone"), this.Content.Load<Texture2D>("big_lastone"), new Occupation("dj")));
+            _characters.Add(new Character("Mike", Pronoun.They, this.Content.Load<Texture2D>("mike"), this.Content.Load<Texture2D>("big_mike"), new Occupation("dancer")));
+            _characters.Add(new Character("Omar", Pronoun.They, this.Content.Load<Texture2D>("omar"), this.Content.Load<Texture2D>("big_omar"), new Occupation("runescape 2007")));
+            _characters.Add(new Character("Pea", Pronoun.They, this.Content.Load<Texture2D>("pea"), this.Content.Load<Texture2D>("big_pea"), new Occupation("baking")));
+            _characters.Add(new Character("Shim", Pronoun.They, this.Content.Load<Texture2D>("shim"), this.Content.Load<Texture2D>("big_shim"), new Occupation("gardening")));
+            _characters.Add(new Character("Tode", Pronoun.They, this.Content.Load<Texture2D>("tode"), this.Content.Load<Texture2D>("big_tode"), new Occupation("software engineer")));
+            _characters.Add(new Character("Willow", Pronoun.They, this.Content.Load<Texture2D>("willow"), this.Content.Load<Texture2D>("big_willow"), new Occupation("jewellery mlm")));
         }
 
         protected override void Update(GameTime gameTime)
@@ -124,27 +125,21 @@ namespace frog
                 Exit();
             }
 
-            /*
-            MouseState currentState = Mouse.GetState(); 
-            if (currentState.LeftButton == ButtonState.Pressed &&
-                _lastMouseState.LeftButton == ButtonState.Released) 
-            {
-                display = !display; 
-            }
-            */
-
             KeyboardState keyboardState = Keyboard.GetState();
             MouseState mouseState = Mouse.GetState();
 
-            switch (_state)
+            switch (_gameState.Stage)
             {
-                case State.TitleScreen:
+                case GameStage.TitleScreen:
                     this.titleScreenUpdate(mouseState);
                     break;
-                case State.CharacterCreation:
+                case GameStage.CharacterCreation:
                     this.characterCreationScreenUpdate(mouseState);
                     break;
-                case State.MainGame:
+                case GameStage.Occupation:
+                    _currentStage.Update(mouseState);
+                    break;
+                case GameStage.MainGame:
                     this.moveFrog(keyboardState, gameTime);
                     break;
             }
@@ -158,73 +153,21 @@ namespace frog
 
             _spriteBatch.Begin();
 
-            switch (_state)
+            switch (_gameState.Stage)
             {
-                case State.TitleScreen:
+                case GameStage.TitleScreen:
                     _spriteBatch.Draw(_titleTexture, new Vector2(0, 0), Color.AliceBlue);
                     break;
 
-                case State.CharacterCreation:
-                    _spriteBatch.Draw(_characterCreationTexture, new Vector2(0, 0), Color.AliceBlue);
-
-                    // left/right buttons
-                    if (_leftButtonDepressed)
-                    {
-                        _spriteBatch.Draw(_leftArrow, new Vector2(0, 5), Color.AliceBlue);
-                    }
-                    else
-                    {
-                        _spriteBatch.Draw(_leftArrow, new Vector2(0, 0), Color.AliceBlue);
-                    }
-
-                    if (_rightButtonDepressed)
-                    {
-                        _spriteBatch.Draw(_rightArrow, new Vector2(0, 5), Color.AliceBlue);
-                    }
-                    else
-                    {
-                        _spriteBatch.Draw(_rightArrow, new Vector2(0, 0), Color.AliceBlue);
-                    }
-
-                    if (_leftButtonDepressed || _rightButtonDepressed)
-                    {
-                        _spriteBatch.Draw(_characterTextureOptions[_characterPointer], new Vector2(40, 148), Color.AliceBlue);
-                    }
-                    else
-                    {
-                        _spriteBatch.Draw(_characterTextureOptions[_characterPointer], new Vector2(40, 153), Color.AliceBlue);
-                    }
-
-                    // pronouns
-                    switch (_characterCreationSelectedPronoun)
-                    {
-                        case Pronoun.She:
-                            _spriteBatch.Draw(_sheHighlight, new Vector2(0, -132), Color.AliceBlue);
-                            break;
-                        case Pronoun.He:
-                            _spriteBatch.Draw(_heHighlight, new Vector2(0, -132), Color.AliceBlue);
-                            break;
-                        case Pronoun.They:
-                            _spriteBatch.Draw(_theyHighlight, new Vector2(0, -132), Color.AliceBlue);
-                            break;
-                        case Pronoun.Custom:
-                            _spriteBatch.Draw(_customHighlight, new Vector2(0, -132), Color.AliceBlue);
-                            break;
-                    }
-
-                    // ready button
-                    if (_readyButtonHovered)
-                    {
-                        _spriteBatch.Draw(_nextButton, new Vector2(0, 5), Color.AliceBlue);
-                    }
-                    else
-                    {
-                        _spriteBatch.Draw(_nextButton, new Vector2(0, 0), Color.AliceBlue);
-                    }
-
+                case GameStage.CharacterCreation:
+                    this.drawCharacterCreation();
                     break;
 
-                case State.MainGame:
+                case GameStage.Occupation:
+                    _currentStage.Draw();
+                    break;
+
+                case GameStage.MainGame:
                     _spriteBatch.Draw(_backgroundTexture, new Vector2(0, 0), Color.AliceBlue);
                     _spriteBatch.Draw(_player.SmallSprite, _playerPosition, null, Color.White, 0f,
                         new Vector2(_player.SmallSprite.Width / 2, _player.SmallSprite.Height / 2),
@@ -234,21 +177,72 @@ namespace frog
                     break;
             }
 
-            /*
-            string text = "hello hellooooo poopoo";
-            // Finds the center of the string in coordinates inside the text rectangle
-            Vector2 textMiddlePoint = _font.MeasureString(text) / 2;
-            // Places text in center of the screen
-            Vector2 position = new Vector2(this.Window.ClientBounds.Width / 2,
-                this.Window.ClientBounds.Height / 2);
-            _spriteBatch.DrawString(_font, text, position, Color.White, 0, textMiddlePoint, 1.0f, SpriteEffects.None, 0.5f);
-            */
-            
-
             _spriteBatch.End();
 
             base.Draw(gameTime);
         }
+
+        private void drawCharacterCreation()
+        {
+            _spriteBatch.Draw(_characterCreationTexture, new Vector2(0, 0), Color.AliceBlue);
+
+            // left/right buttons
+            if (_leftButtonDepressed)
+            {
+                _spriteBatch.Draw(_leftArrow, new Vector2(0, 5), Color.AliceBlue);
+            }
+            else
+            {
+                _spriteBatch.Draw(_leftArrow, new Vector2(0, 0), Color.AliceBlue);
+            }
+
+            if (_rightButtonDepressed)
+            {
+                _spriteBatch.Draw(_rightArrow, new Vector2(0, 5), Color.AliceBlue);
+            }
+            else
+            {
+                _spriteBatch.Draw(_rightArrow, new Vector2(0, 0), Color.AliceBlue);
+            }
+
+            if (_leftButtonDepressed || _rightButtonDepressed)
+            {
+                _spriteBatch.Draw(_characterTextureOptions[_characterPointer], new Vector2(40, 148), Color.AliceBlue);
+            }
+            else
+            {
+                _spriteBatch.Draw(_characterTextureOptions[_characterPointer], new Vector2(40, 153), Color.AliceBlue);
+            }
+
+            // pronouns
+            switch (_characterCreationSelectedPronoun)
+            {
+                case Pronoun.She:
+                    _spriteBatch.Draw(_sheHighlight, new Vector2(0, -132), Color.AliceBlue);
+                    break;
+                case Pronoun.He:
+                    _spriteBatch.Draw(_heHighlight, new Vector2(0, -132), Color.AliceBlue);
+                    break;
+                case Pronoun.They:
+                    _spriteBatch.Draw(_theyHighlight, new Vector2(0, -132), Color.AliceBlue);
+                    break;
+                case Pronoun.Custom:
+                    _spriteBatch.Draw(_customHighlight, new Vector2(0, -132), Color.AliceBlue);
+                    break;
+            }
+
+            // ready button
+            if (_readyButtonHovered)
+            {
+                _spriteBatch.Draw(_nextButton, new Vector2(0, 5), Color.AliceBlue);
+            }
+            else
+            {
+                _spriteBatch.Draw(_nextButton, new Vector2(0, 0), Color.AliceBlue);
+            }
+        }
+
+
 
         private void titleScreenUpdate(MouseState mouseState)
         {
@@ -258,7 +252,7 @@ namespace frog
                 {
                     if (mouseState.X > 72 && mouseState.X < 319)
                     {
-                        _state = State.CharacterCreation;
+                        _gameState.Stage = GameStage.CharacterCreation;
                     }
                 }
             }
@@ -280,7 +274,7 @@ namespace frog
             }
 
             // mouse state
-            if (mouseState == _lastMouseState)
+            if (mouseState.LeftButton == _lastMouseState.LeftButton)
                 return;
 
             _lastMouseState = mouseState;
@@ -359,8 +353,9 @@ namespace frog
                 {
                     if (mouseState.X > 521 && mouseState.X < 779)
                     {
-                        _player = new Character("test", Pronoun.She, _smallCharacterTextureOptions[_characterPointer], _characterTextureOptions[_characterPointer]);
-                        _state = State.MainGame;
+                        _gameState.Stage = GameStage.Occupation;
+                        _player = new Character("test", _characterCreationSelectedPronoun, _smallCharacterTextureOptions[_characterPointer], _characterTextureOptions[_characterPointer]);
+                        _currentStage = new OccupationScreen(_spriteBatch, _font, this.Content, _gameState, _player);
                     }
                 }
             }
@@ -370,6 +365,8 @@ namespace frog
                 _leftButtonDepressed = false;
             }
         }
+
+        
 
         private void moveFrog(KeyboardState keyboardState, GameTime gameTime)
         {

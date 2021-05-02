@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace frog
+namespace frog.Things
 {
     public class Character
     {
@@ -11,16 +11,19 @@ namespace frog
         public Texture2D SmallSprite { get; }
         public Texture2D LargeSprite { get; }
         public Vector2 Position { get; }
+        public Occupation Occupation { get; set; }
 
         public Character(string name,
                          Pronoun pronoun,
                          Texture2D smallSprite,
-                         Texture2D largeSprite)
+                         Texture2D largeSprite,
+                         Occupation occupation = null)
         {
             this.Name = name;
             this.SmallSprite = smallSprite;
             this.LargeSprite = largeSprite;
             this.Position = Vector2.Zero;
+            this.Occupation = occupation;
 
             switch (pronoun)
             {

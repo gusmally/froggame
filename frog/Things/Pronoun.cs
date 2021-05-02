@@ -1,8 +1,11 @@
-﻿namespace frog
+﻿namespace frog.Things
 {
     public enum Pronoun
     {
-        She, He, They, Custom
+        She,
+        He,
+        They,
+        Custom
     }
 
     public enum PronounType
