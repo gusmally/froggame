@@ -1,13 +1,17 @@
-﻿namespace frog
+﻿using frog.Screens;
+using frog.Things;
+
+namespace frog
 {
     public class GameState
     {
-        public GameStage Stage { get; set; }
-        public enum GameStage { TitleScreen, CharacterCreation, Occupation, MainGame };
+        public IStage CurrentStage { get; set; }
+
+        public Character Player { get; set; }
+        //public enum GameStage { TitleScreen, CharacterCreation, Occupation, MainGame };
 
         public GameState()
         {
-            Stage = GameStage.TitleScreen;
         }
     }
 }

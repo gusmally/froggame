@@ -10,6 +10,8 @@ namespace frog.Screens
 {
     public class OccupationScreen : IStage
     {
+        public delegate OccupationScreen Factory();
+
         private SpriteBatch _spriteBatch;
         private SpriteFont _font;
 
@@ -20,17 +22,17 @@ namespace frog.Screens
 
         private ContentManager _contentManager;
         private GameState _gameState;
-        private Character _player;
+        private VillaScreen.Factory _villaScreenFactory;
 
         private bool _readyButtonHovered;
 
-        public OccupationScreen(SpriteBatch spriteBatch, SpriteFont font, ContentManager contentManager, GameState gameState, Character player)
+        public OccupationScreen(SpriteBatch spriteBatch, SpriteFont font, ContentManager contentManager, GameState gameState, VillaScreen.Factory villaScreenFactory)
         {
             _spriteBatch = spriteBatch;
             _font = font;
             _contentManager = contentManager;
             _gameState = gameState;
-            _player = player;
+            _villaScreenFactory = villaScreenFactory;
 
             _occupationTexture = _contentManager.Load<Texture2D>("occupations");
             _occupation1 = _contentManager.Load<Texture2D>("occupations(1)");
@@ -61,7 +63,23 @@ namespace frog.Screens
             }
         }
 
-        public void Update(MouseState mouseState)
+        public void UpdateClick(MouseState mouseState)
+        {
+            // handle the buttons being pressed
+            //Occupation chosen = ;
+
+            // ready button
+            if (mouseState.Y > 503 && mouseState.Y < 572)
+            {
+                if (mouseState.X > 521 && mouseState.X < 779)
+                {
+                    _gameState.Player.Occupation = new Occupation("test");
+                    _gameState.CurrentStage = _villaScreenFactory();
+                }
+            }
+        }
+
+        public void UpdateHover(MouseState mouseState)
         {
             if (mouseState.Y > 503 && mouseState.Y < 572)
             {
@@ -74,28 +92,10 @@ namespace frog.Screens
             {
                 _readyButtonHovered = false;
             }
+        }
 
-            // mouse state
-            if (mouseState.LeftButton == _lastMouseState.LeftButton)
-                return;
-
-            _lastMouseState = mouseState;
-
-            if (mouseState.LeftButton == ButtonState.Released)
-                return;
-
-            // handle the buttons being pressed
-            //Occupation chosen = ;
-
-            // ready button
-            if (mouseState.Y > 503 && mouseState.Y < 572)
-            {
-                if (mouseState.X > 521 && mouseState.X < 779)
-                {
-                    _player.Occupation = new Occupation("test");
-                    _gameState.Stage = GameState.GameStage.MainGame;
-                }
-            }
+        public void UpdateKeyboard(KeyboardState keyboardState, GameTime gameTime)
+        {
         }
     }
 }

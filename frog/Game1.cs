@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
+using Autofac;
 using frog.Screens;
 using frog.Things;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using static frog.GameState;
@@ -10,97 +12,63 @@ namespace frog
 {
     public partial class Game1 : Game
     {
+        public delegate Game1 Factory();
+
         private GraphicsDeviceManager _graphics;
         private SpriteBatch _spriteBatch;
-        private Vector2 _playerPosition;
-        private float _frogSpeed;
-        private bool _leftButtonDepressed;
-        private bool _rightButtonDepressed;
-        private bool _readyButtonHovered;
+
         private MouseState _lastMouseState;
-        private Pronoun _characterCreationSelectedPronoun;
+        private IContainer _container;
 
         private List<Character> _characters = new List<Character>();
-        private Character _player;
-
-        private Texture2D _backgroundTexture;
-        private Texture2D _titleTexture;
-        private Texture2D _characterCreationTexture;
-
-        private List<Texture2D> _characterTextureOptions = new List<Texture2D>();
-        private List<Texture2D> _smallCharacterTextureOptions = new List<Texture2D>();
-        private int _characterPointer;
-
-        private Texture2D _leftArrow;
-        private Texture2D _rightArrow;
-        private Texture2D _nextButton;
-
-        private Texture2D _sheHighlight;
-        private Texture2D _heHighlight;
-        private Texture2D _theyHighlight;
-        private Texture2D _customHighlight;
-
-        private SpriteFont _font;
-
         private GameState _gameState;
-        private IStage _currentStage;
+
+        private TitleScreen.Factory _titleScreenFactory;
 
         public Game1()
         {
-            _graphics = new GraphicsDeviceManager(this);
+            this.bootstrap();
+
+            _titleScreenFactory = _container.Resolve<TitleScreen.Factory>();
+            _gameState = _container.Resolve<GameState>();
+            _graphics = _container.Resolve<GraphicsDeviceManager>();
 
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
         }
 
+        private void bootstrap()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterType<GameState>().SingleInstance();
+            builder.RegisterType<TitleScreen>().SingleInstance();
+            builder.RegisterType<CharacterScreen>().SingleInstance();
+            builder.RegisterType<OccupationScreen>().SingleInstance();
+            builder.RegisterType<VillaScreen>().SingleInstance();
+            builder.RegisterType<SpriteBatch>().SingleInstance();
+            builder.Register((c, p) => this.Content.Load<SpriteFont>("dearLovely")).As<SpriteFont>();
+            builder.RegisterInstance(this.Content).As<ContentManager>().SingleInstance();
+            builder.Register((c, p) => new GraphicsDeviceManager(this)).As<GraphicsDeviceManager>().SingleInstance();
+            _container = builder.Build();
+        }
+
         protected override void Initialize()
         {
+            _spriteBatch = _container.Resolve<SpriteBatch>(new List<NamedParameter>(){ new NamedParameter("graphicsDevice", this.GraphicsDevice)});
+
             _graphics.PreferredBackBufferWidth = 800;
             _graphics.PreferredBackBufferHeight = 600;
             _graphics.ApplyChanges();
 
-            _playerPosition = new Vector2(_graphics.PreferredBackBufferWidth / 2,
-                _graphics.PreferredBackBufferHeight / 2);
-            _frogSpeed = 100f;
-
-            _gameState = new GameState();
+            _gameState.CurrentStage = _titleScreenFactory();
 
             base.Initialize();
         }
 
         protected override void LoadContent()
         {
-            _spriteBatch = new SpriteBatch(GraphicsDevice);
-
-            _backgroundTexture = this.Content.Load<Texture2D>("mainBackground");
-            _titleTexture = this.Content.Load<Texture2D>("title");
-
-            // character creation
-            _characterCreationTexture = this.Content.Load<Texture2D>("characterCreation");
-
-            _characterTextureOptions.Add(this.Content.Load<Texture2D>("big_option0"));
-            _characterTextureOptions.Add(this.Content.Load<Texture2D>("big_option1"));
-            _characterTextureOptions.Add(this.Content.Load<Texture2D>("big_option2"));
-            _characterTextureOptions.Add(this.Content.Load<Texture2D>("big_option3"));
-            _characterTextureOptions.Add(this.Content.Load<Texture2D>("big_option4"));
-
-            _smallCharacterTextureOptions.Add(this.Content.Load<Texture2D>("option0"));
-            _smallCharacterTextureOptions.Add(this.Content.Load<Texture2D>("option1"));
-            _smallCharacterTextureOptions.Add(this.Content.Load<Texture2D>("option2"));
-            _smallCharacterTextureOptions.Add(this.Content.Load<Texture2D>("option3"));
-            _smallCharacterTextureOptions.Add(this.Content.Load<Texture2D>("option4"));
-
-            _rightArrow = this.Content.Load<Texture2D>("rightArrow");
-            _leftArrow = this.Content.Load<Texture2D>("leftArrow");
-            _nextButton = this.Content.Load<Texture2D>("nextArrow");
-
-            _sheHighlight = this.Content.Load<Texture2D>("sheHighlight");
-            _heHighlight = this.Content.Load<Texture2D>("heHighlight");
-            _theyHighlight = this.Content.Load<Texture2D>("theyHighlight");
-            _customHighlight = this.Content.Load<Texture2D>("customHighlight");
-
             // font
-            _font = this.Content.Load<SpriteFont>("dearLovely");
+            _container.Resolve<SpriteFont>(); 
 
             // characters
             _characters.Add(new Character("Ash", Pronoun.They, this.Content.Load<Texture2D>("ash"), this.Content.Load<Texture2D>("big_ash"), new Occupation("fashion")));
@@ -128,21 +96,19 @@ namespace frog
             KeyboardState keyboardState = Keyboard.GetState();
             MouseState mouseState = Mouse.GetState();
 
-            switch (_gameState.Stage)
-            {
-                case GameStage.TitleScreen:
-                    this.titleScreenUpdate(mouseState);
-                    break;
-                case GameStage.CharacterCreation:
-                    this.characterCreationScreenUpdate(mouseState);
-                    break;
-                case GameStage.Occupation:
-                    _currentStage.Update(mouseState);
-                    break;
-                case GameStage.MainGame:
-                    this.moveFrog(keyboardState, gameTime);
-                    break;
-            }
+            _gameState.CurrentStage.UpdateHover(mouseState);
+            _gameState.CurrentStage.UpdateKeyboard(keyboardState, gameTime);
+
+            // return if not clicking
+            if (mouseState.LeftButton == _lastMouseState.LeftButton)
+                return;
+
+            _lastMouseState = mouseState;
+
+            if (mouseState.LeftButton == ButtonState.Released)
+                return;
+
+            _gameState.CurrentStage.UpdateClick(mouseState);
 
             base.Update(gameTime);
         }
@@ -153,254 +119,11 @@ namespace frog
 
             _spriteBatch.Begin();
 
-            switch (_gameState.Stage)
-            {
-                case GameStage.TitleScreen:
-                    _spriteBatch.Draw(_titleTexture, new Vector2(0, 0), Color.AliceBlue);
-                    break;
-
-                case GameStage.CharacterCreation:
-                    this.drawCharacterCreation();
-                    break;
-
-                case GameStage.Occupation:
-                    _currentStage.Draw();
-                    break;
-
-                case GameStage.MainGame:
-                    _spriteBatch.Draw(_backgroundTexture, new Vector2(0, 0), Color.AliceBlue);
-                    _spriteBatch.Draw(_player.SmallSprite, _playerPosition, null, Color.White, 0f,
-                        new Vector2(_player.SmallSprite.Width / 2, _player.SmallSprite.Height / 2),
-                        new Vector2(2, 2),
-                        SpriteEffects.None,
-                        0f);
-                    break;
-            }
+            _gameState.CurrentStage.Draw();
 
             _spriteBatch.End();
 
             base.Draw(gameTime);
-        }
-
-        private void drawCharacterCreation()
-        {
-            _spriteBatch.Draw(_characterCreationTexture, new Vector2(0, 0), Color.AliceBlue);
-
-            // left/right buttons
-            if (_leftButtonDepressed)
-            {
-                _spriteBatch.Draw(_leftArrow, new Vector2(0, 5), Color.AliceBlue);
-            }
-            else
-            {
-                _spriteBatch.Draw(_leftArrow, new Vector2(0, 0), Color.AliceBlue);
-            }
-
-            if (_rightButtonDepressed)
-            {
-                _spriteBatch.Draw(_rightArrow, new Vector2(0, 5), Color.AliceBlue);
-            }
-            else
-            {
-                _spriteBatch.Draw(_rightArrow, new Vector2(0, 0), Color.AliceBlue);
-            }
-
-            if (_leftButtonDepressed || _rightButtonDepressed)
-            {
-                _spriteBatch.Draw(_characterTextureOptions[_characterPointer], new Vector2(40, 148), Color.AliceBlue);
-            }
-            else
-            {
-                _spriteBatch.Draw(_characterTextureOptions[_characterPointer], new Vector2(40, 153), Color.AliceBlue);
-            }
-
-            // pronouns
-            switch (_characterCreationSelectedPronoun)
-            {
-                case Pronoun.She:
-                    _spriteBatch.Draw(_sheHighlight, new Vector2(0, -132), Color.AliceBlue);
-                    break;
-                case Pronoun.He:
-                    _spriteBatch.Draw(_heHighlight, new Vector2(0, -132), Color.AliceBlue);
-                    break;
-                case Pronoun.They:
-                    _spriteBatch.Draw(_theyHighlight, new Vector2(0, -132), Color.AliceBlue);
-                    break;
-                case Pronoun.Custom:
-                    _spriteBatch.Draw(_customHighlight, new Vector2(0, -132), Color.AliceBlue);
-                    break;
-            }
-
-            // ready button
-            if (_readyButtonHovered)
-            {
-                _spriteBatch.Draw(_nextButton, new Vector2(0, 5), Color.AliceBlue);
-            }
-            else
-            {
-                _spriteBatch.Draw(_nextButton, new Vector2(0, 0), Color.AliceBlue);
-            }
-        }
-
-
-
-        private void titleScreenUpdate(MouseState mouseState)
-        {
-            if (mouseState.LeftButton == ButtonState.Pressed)
-            {
-                if (mouseState.Y > 348 && mouseState.Y < 458)
-                {
-                    if (mouseState.X > 72 && mouseState.X < 319)
-                    {
-                        _gameState.Stage = GameStage.CharacterCreation;
-                    }
-                }
-            }
-        }
-
-        private void characterCreationScreenUpdate(MouseState mouseState)
-        {
-            // ready button
-            if (mouseState.Y > 503 && mouseState.Y < 572)
-            {
-                if (mouseState.X > 521 && mouseState.X < 779)
-                {
-                    _readyButtonHovered = true;
-                }
-            }
-            else
-            {
-                _readyButtonHovered = false;
-            }
-
-            // mouse state
-            if (mouseState.LeftButton == _lastMouseState.LeftButton)
-                return;
-
-            _lastMouseState = mouseState;
-
-            // skin buttons
-            if (mouseState.LeftButton == ButtonState.Pressed)
-            { 
-                if (mouseState.Y > 433 && mouseState.Y < 517)
-                {
-                    // left button
-                    if (mouseState.X > 78 && mouseState.X < 168)
-                    {
-                        _leftButtonDepressed = true;
-
-                        if (_characterPointer == 4)
-                        {
-                            _characterPointer = 0;
-                        }
-                        else
-                        {
-                            _characterPointer++;
-                        }
-                    }
-
-                    // right button
-                    if (mouseState.X > 237 && mouseState.X < 331)
-                    {
-                        _rightButtonDepressed = true;
-
-                        if (_characterPointer == 0)
-                        {
-                            _characterPointer = 4;
-                        }
-                        else
-                        {
-                            _characterPointer--;
-                        }
-                    }
-                }
-
-                // she button
-                if (mouseState.Y > 221 && mouseState.Y < 301)
-                {
-                    if (mouseState.X > 426 && mouseState.X < 563)
-                    {
-                        _characterCreationSelectedPronoun = Pronoun.She;
-                    }
-                }
-                // he button
-                if (mouseState.Y > 343 && mouseState.Y < 435)
-                {
-                    if (mouseState.X > 415 && mouseState.X < 554)
-                    {
-                        _characterCreationSelectedPronoun = Pronoun.He;
-                    }
-                }
-                // they button
-                if (mouseState.Y > 201 && mouseState.Y < 327)
-                {
-                    if (mouseState.X > 602 && mouseState.X < 785)
-                    {
-                        _characterCreationSelectedPronoun = Pronoun.They;
-                    }
-                }
-                // custom button
-                if (mouseState.Y > 373 && mouseState.Y < 453)
-                {
-                    if (mouseState.X > 586 && mouseState.X < 800)
-                    {
-                        _characterCreationSelectedPronoun = Pronoun.Custom;
-                    }
-                }
-
-                // ready button
-                if (mouseState.Y > 503 && mouseState.Y < 572)
-                {
-                    if (mouseState.X > 521 && mouseState.X < 779)
-                    {
-                        _gameState.Stage = GameStage.Occupation;
-                        _player = new Character("test", _characterCreationSelectedPronoun, _smallCharacterTextureOptions[_characterPointer], _characterTextureOptions[_characterPointer]);
-                        _currentStage = new OccupationScreen(_spriteBatch, _font, this.Content, _gameState, _player);
-                    }
-                }
-            }
-            else
-            {
-                _rightButtonDepressed = false;
-                _leftButtonDepressed = false;
-            }
-        }
-
-        
-
-        private void moveFrog(KeyboardState keyboardState, GameTime gameTime)
-        {
-            if (keyboardState.IsKeyDown(Keys.Up))
-                _playerPosition.Y -= _frogSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (keyboardState.IsKeyDown(Keys.Down))
-                _playerPosition.Y += _frogSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (keyboardState.IsKeyDown(Keys.Left))
-                _playerPosition.X -= _frogSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-            if (keyboardState.IsKeyDown(Keys.Right))
-            {
-                _playerPosition.X += _frogSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-            }
-
-            if (_playerPosition.X > _graphics.PreferredBackBufferWidth - _player.SmallSprite.Width / 2)
-            {
-                _playerPosition.X = _graphics.PreferredBackBufferWidth - _player.SmallSprite.Width / 2;
-            }
-            else if (_playerPosition.X < _player.SmallSprite.Width / 2)
-            {
-                _playerPosition.X = _player.SmallSprite.Width / 2;
-            }
-
-            if (_playerPosition.Y > _graphics.PreferredBackBufferHeight - _player.SmallSprite.Height / 2)
-            {
-                _playerPosition.Y = _graphics.PreferredBackBufferHeight - _player.SmallSprite.Height / 2;
-            }
-            else if (_playerPosition.Y < _player.SmallSprite.Height / 2)
-            {
-                _playerPosition.Y = _player.SmallSprite.Height / 2;
-            }
         }
     }
 }
