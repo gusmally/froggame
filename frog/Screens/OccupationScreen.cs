@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using frog;
 using frog.Things;
+using System.Collections.Generic;
+using frog.Screens.Util;
 
 namespace frog.Screens
 {
@@ -16,41 +18,67 @@ namespace frog.Screens
         private SpriteFont _font;
 
         private Texture2D _occupationTexture;
-        private Texture2D _occupation1;
+        private Texture2D _oval;
         private Texture2D _nextButton;
         private MouseState _lastMouseState;
 
         private ContentManager _contentManager;
         private GameState _gameState;
+        private GraphicsDevice _graphicsDevice;
         private VillaScreen.Factory _villaScreenFactory;
 
-        private bool _readyButtonHovered;
+        private List<Button> _occupationButtons = new List<Button>();
 
-        public OccupationScreen(SpriteBatch spriteBatch, SpriteFont font, ContentManager contentManager, GameState gameState, VillaScreen.Factory villaScreenFactory)
+        private bool _readyButtonHovered;
+        private const int _buffer = 50;
+        private const int _halfbuffer = _buffer / 2;
+
+        // todo
+        string nanny = "nanny";
+        string barber = "barber";
+        string electrician = "electrician";
+        string ceramicist = "ceramicist";
+        string dryCleaner = "dry cleaner";
+        string astronomer = "astronomer";
+        string operaSinger = "opera singer";
+        string runwayModel = "runway model";
+        string streamer = "streamer";
+        string trustFundBabie = "trust fund babie";
+
+        public OccupationScreen(SpriteBatch spriteBatch, SpriteFont font, ContentManager contentManager, GameState gameState, GraphicsDevice graphicsDevice, VillaScreen.Factory villaScreenFactory)
         {
             _spriteBatch = spriteBatch;
             _font = font;
             _contentManager = contentManager;
             _gameState = gameState;
             _villaScreenFactory = villaScreenFactory;
+            _graphicsDevice = graphicsDevice;
 
-            _occupationTexture = _contentManager.Load<Texture2D>("occupations");
-            _occupation1 = _contentManager.Load<Texture2D>("occupations(1)");
+            _occupationTexture = _contentManager.Load<Texture2D>("occupationScreen");
+            _oval = _contentManager.Load<Texture2D>("purpleOval");
             _nextButton = _contentManager.Load<Texture2D>("nextArrow");
+
+            this.initButton(120, 145, nanny);
+            this.initButton(350, 270, barber);
+            this.initButton(100, 270, electrician);
+            this.initButton(155, 520, ceramicist);
+            this.initButton(355, 170, dryCleaner);
+            this.initButton(600, 260, astronomer);
+            this.initButton(530, 470, operaSinger);
+            this.initButton(195, 400, runwayModel);
+            this.initButton(635, 165, streamer);
+            this.initButton(590, 370, trustFundBabie);
         }
 
         public void Draw()
         {
             _spriteBatch.Draw(_occupationTexture, new Vector2(0, 0), Color.AliceBlue);
-            _spriteBatch.Draw(_occupation1, new Vector2(0, 0), Color.AliceBlue);
 
-            string nanny = "nanny";
-            string barber = "barber";
-            string electrician = "electrician";
-            string ceramicist = "ceramicist";
-
-            // Places text in center of the screen
-            _spriteBatch.DrawString(_font, nanny, new Vector2(100, 150), Color.White, 0, _font.MeasureString(nanny) / 2, 1.0f, SpriteEffects.None, 0.5f);
+            // Place text and ovals
+            foreach (var button in _occupationButtons)
+            {
+                this.drawButton(button);
+            }
 
             // ready button
             if (_readyButtonHovered)
@@ -61,6 +89,30 @@ namespace frog.Screens
             {
                 _spriteBatch.Draw(_nextButton, new Vector2(0, 10), Color.AliceBlue);
             }
+        }
+
+        private void initButton(int x, int y, string label)
+        {
+            _occupationButtons.Add(new Button(new Vector2(x, y),
+                                              new Rectangle(x - (int)_font.MeasureString(label).X / 2,
+                                                            y - (int)(_font.MeasureString(label).Y / 1.3),
+                                                            (int)_font.MeasureString(label).X + _buffer,
+                                                            70),
+                                              _oval,
+                                              label));
+        }
+
+        private void drawButton(Button button)
+        {
+            _spriteBatch.Draw(_oval, button.Viewport, Color.AliceBlue);
+            _spriteBatch.DrawString(_font,
+                button.Label,
+                new Vector2(button.Origin.X + _halfbuffer, button.Origin.Y),
+                Color.White,
+                0,
+                _font.MeasureString(button.Label) / 2, 1.0f,
+                SpriteEffects.None,
+                0.5f);
         }
 
         public void UpdateClick(MouseState mouseState)

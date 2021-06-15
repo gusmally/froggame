@@ -31,5 +31,6 @@
   <ItemGroup>
     <Folder Include="Things\" />
     <Folder Include="Screens\" />
+    <Folder Include="Screens\Util\" />
   </ItemGroup>
 </Project>

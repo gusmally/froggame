@@ -452,7 +452,7 @@
 /processorParam:TextureFormat=Color
 /build:nextArrow.png
 
-#begin occupations(1).png
+#begin occupationScreen.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
@@ -462,19 +462,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:occupations(1).png
-
-#begin occupations.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:occupations.png
+/build:occupationScreen.png
 
 #begin omar.png
 /importer:TextureImporter
@@ -488,6 +476,18 @@
 /processorParam:TextureFormat=Color
 /build:omar.png
 
+#begin outside.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:outside.png
+
 #begin pea.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -499,6 +499,18 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:pea.png
+
+#begin purpleOval.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:purpleOval.png
 
 #begin readyButton.png
 /importer:TextureImporter

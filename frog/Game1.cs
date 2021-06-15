@@ -48,6 +48,7 @@ namespace frog
             builder.Register((c, p) => this.Content.Load<SpriteFont>("dearLovely")).As<SpriteFont>();
             builder.RegisterInstance(this.Content).As<ContentManager>().SingleInstance();
             builder.Register((c, p) => new GraphicsDeviceManager(this)).As<GraphicsDeviceManager>().SingleInstance();
+            builder.Register((c, p) => this.GraphicsDevice).As<GraphicsDevice>().SingleInstance();
             _container = builder.Build();
         }
 
