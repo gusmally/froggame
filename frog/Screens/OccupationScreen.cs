@@ -30,8 +30,6 @@ namespace frog.Screens
         private List<Button> _occupationButtons = new List<Button>();
 
         private bool _readyButtonHovered;
-        private const int _buffer = 50;
-        private const int _halfbuffer = _buffer / 2;
 
         // todo
         string nanny = "nanny";
@@ -93,13 +91,11 @@ namespace frog.Screens
 
         private void initButton(int x, int y, string label)
         {
-            _occupationButtons.Add(new Button(new Vector2(x, y),
-                                              new Rectangle(x - (int)_font.MeasureString(label).X / 2,
-                                                            y - (int)(_font.MeasureString(label).Y / 1.3),
-                                                            (int)_font.MeasureString(label).X + _buffer,
-                                                            70),
+            _occupationButtons.Add(new Button(x,
+                                              y,
                                               _oval,
-                                              label));
+                                              label,
+                                              _font.MeasureString(label)));
         }
 
         private void drawButton(Button button)
@@ -107,10 +103,11 @@ namespace frog.Screens
             _spriteBatch.Draw(_oval, button.Viewport, Color.AliceBlue);
             _spriteBatch.DrawString(_font,
                 button.Label,
-                new Vector2(button.Origin.X + _halfbuffer, button.Origin.Y),
+                button.LabelOrigin,
                 Color.White,
                 0,
-                _font.MeasureString(button.Label) / 2, 1.0f,
+                _font.MeasureString(button.Label) / 2,
+                1.0f,
                 SpriteEffects.None,
                 0.5f);
         }
@@ -143,6 +140,11 @@ namespace frog.Screens
             else
             {
                 _readyButtonHovered = false;
+            }
+
+            foreach (var button in _occupationButtons)
+            {
+                button.SetHoverState(mouseState);
             }
         }
 
