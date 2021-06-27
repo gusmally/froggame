@@ -19,6 +19,7 @@ namespace frog.Screens
 
         private Texture2D _occupationTexture;
         private Texture2D _oval;
+        private Texture2D _ovalHighlight;
         private Texture2D _nextButton;
         private MouseState _lastMouseState;
 
@@ -54,6 +55,7 @@ namespace frog.Screens
 
             _occupationTexture = _contentManager.Load<Texture2D>("occupationScreen");
             _oval = _contentManager.Load<Texture2D>("purpleOval");
+            _ovalHighlight = _contentManager.Load<Texture2D>("ovalHighlight");
             _nextButton = _contentManager.Load<Texture2D>("nextArrow");
 
             this.initButton(120, 145, nanny);
@@ -100,6 +102,13 @@ namespace frog.Screens
 
         private void drawButton(Button button)
         {
+            if (button.HasBeenClicked)
+            {
+                _spriteBatch.Draw(_ovalHighlight,
+                    new Rectangle(button.Viewport.X - 25, button.Viewport.Y -25, button.Viewport.Width + 50, button.Viewport.Height + 50),
+                    Color.AliceBlue);
+            }
+
             _spriteBatch.Draw(_oval, button.Viewport, Color.AliceBlue);
             _spriteBatch.DrawString(_font,
                 button.Label,
@@ -116,6 +125,10 @@ namespace frog.Screens
         {
             // handle the buttons being pressed
             //Occupation chosen = ;
+            foreach (var button in _occupationButtons)
+            {
+                button.SetHasBeenClicked(mouseState);
+            }
 
             // ready button
             if (mouseState.Y > 503 && mouseState.Y < 572)
@@ -150,6 +163,7 @@ namespace frog.Screens
 
         public void UpdateKeyboard(KeyboardState keyboardState, GameTime gameTime)
         {
+
         }
     }
 }

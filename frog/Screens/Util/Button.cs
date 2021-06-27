@@ -24,7 +24,7 @@ namespace frog.Screens.Util
         public Texture2D Texture { get; }
         public string Label { get; }
 
-        public bool IsDepressed { get; set; }
+        public bool HasBeenClicked { get; set; }
 
         public Button(int x, int y, Texture2D texture, string label, Vector2 labelDimensions)
         {
@@ -53,6 +53,15 @@ namespace frog.Screens.Util
                  mouseState.X < Viewport.X + Viewport.Width &&
                  mouseState.Y > Viewport.Y &&
                  mouseState.Y < Viewport.Y + Viewport.Height;
+        }
+
+        public void SetHasBeenClicked(MouseState mouseState)
+        {
+            this.HasBeenClicked = mouseState.LeftButton == ButtonState.Pressed &&
+                mouseState.X > Viewport.X &&
+                mouseState.X < Viewport.X + Viewport.Width &&
+                mouseState.Y > Viewport.Y &&
+                mouseState.Y < Viewport.Y + Viewport.Height;
         }
     }
 }
