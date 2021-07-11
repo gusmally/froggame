@@ -26,6 +26,7 @@ namespace frog.Screens.Util
 
         public bool HasBeenClicked { get; set; }
 
+        // todo: make hover magnitude a parameter
         public Button(int x, int y, Texture2D texture, string label, Vector2 labelDimensions)
         {
             _origin = new Vector2(x, y);
