@@ -21,16 +21,16 @@ namespace frog.Screens
         private Texture2D _oval;
         private Texture2D _ovalHighlight;
         private Texture2D _nextButton;
-        private MouseState _lastMouseState;
 
         private ContentManager _contentManager;
         private GameState _gameState;
-        private GraphicsDevice _graphicsDevice;
-        private VillaScreen.Factory _villaScreenFactory;
+        private OutsideScreen.Factory _outsideScreenFactory;
 
         private List<Button> _occupationButtons = new List<Button>();
 
-        private bool _readyButtonHovered;
+        private bool _nextButtonHovered;
+        private bool _nextArrowVisible;
+        private string _selectedOccupation;
 
         // todo
         string nanny = "nanny";
@@ -44,14 +44,13 @@ namespace frog.Screens
         string streamer = "streamer";
         string trustFundBabie = "trust fund babie";
 
-        public OccupationScreen(SpriteBatch spriteBatch, SpriteFont font, ContentManager contentManager, GameState gameState, GraphicsDevice graphicsDevice, VillaScreen.Factory villaScreenFactory)
+        public OccupationScreen(SpriteBatch spriteBatch, SpriteFont font, ContentManager contentManager, GameState gameState, OutsideScreen.Factory outsideScreenFactory)
         {
             _spriteBatch = spriteBatch;
             _font = font;
             _contentManager = contentManager;
             _gameState = gameState;
-            _villaScreenFactory = villaScreenFactory;
-            _graphicsDevice = graphicsDevice;
+            _outsideScreenFactory = outsideScreenFactory;
 
             _occupationTexture = _contentManager.Load<Texture2D>("occupationScreen");
             _oval = _contentManager.Load<Texture2D>("purpleOval");
@@ -81,13 +80,16 @@ namespace frog.Screens
             }
 
             // ready button
-            if (_readyButtonHovered)
+            if (_nextArrowVisible)
             {
-                _spriteBatch.Draw(_nextButton, new Vector2(0, 15), Color.AliceBlue);
-            }
-            else
-            {
-                _spriteBatch.Draw(_nextButton, new Vector2(0, 10), Color.AliceBlue);
+                if (_nextButtonHovered)
+                {
+                    _spriteBatch.Draw(_nextButton, new Vector2(0, 15), Color.AliceBlue);
+                }
+                else
+                {
+                    _spriteBatch.Draw(_nextButton, new Vector2(0, 10), Color.AliceBlue);
+                }
             }
         }
 
@@ -107,6 +109,8 @@ namespace frog.Screens
                 _spriteBatch.Draw(_ovalHighlight,
                     new Rectangle(button.Viewport.X - 25, button.Viewport.Y -25, button.Viewport.Width + 50, button.Viewport.Height + 50),
                     Color.AliceBlue);
+                _selectedOccupation = button.Label;
+                _nextArrowVisible = true;
             }
 
             _spriteBatch.Draw(_oval, button.Viewport, Color.AliceBlue);
@@ -124,7 +128,6 @@ namespace frog.Screens
         public void UpdateClick(MouseState mouseState)
         {
             // handle the buttons being pressed
-            //Occupation chosen = ;
             foreach (var button in _occupationButtons)
             {
                 button.SetHasBeenClicked(mouseState);
@@ -135,8 +138,8 @@ namespace frog.Screens
             {
                 if (mouseState.X > 521 && mouseState.X < 779)
                 {
-                    _gameState.Player.Occupation = new Occupation("test");
-                    _gameState.CurrentStage = _villaScreenFactory();
+                    _gameState.Player.Occupation = new Occupation(_selectedOccupation);
+                    _gameState.CurrentStage = _outsideScreenFactory();
                 }
             }
         }
@@ -147,12 +150,12 @@ namespace frog.Screens
             {
                 if (mouseState.X > 521 && mouseState.X < 779)
                 {
-                    _readyButtonHovered = true;
+                    _nextButtonHovered = true;
                 }
             }
             else
             {
-                _readyButtonHovered = false;
+                _nextButtonHovered = false;
             }
 
             foreach (var button in _occupationButtons)

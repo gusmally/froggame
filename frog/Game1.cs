@@ -43,6 +43,7 @@ namespace frog
             builder.RegisterType<TitleScreen>().SingleInstance();
             builder.RegisterType<CharacterScreen>().SingleInstance();
             builder.RegisterType<OccupationScreen>().SingleInstance();
+            builder.RegisterType<OutsideScreen>().SingleInstance();
             builder.RegisterType<VillaScreen>().SingleInstance();
             builder.RegisterType<SpriteBatch>().SingleInstance();
             builder.Register((c, p) => this.Content.Load<SpriteFont>("dearLovely")).As<SpriteFont>();

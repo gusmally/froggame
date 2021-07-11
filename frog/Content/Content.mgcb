@@ -13,6 +13,18 @@
 
 #---------------------------------- Content ---------------------------------#
 
+#begin ../../../../Downloads/smallNextArrow.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:../../../../Downloads/smallNextArrow.png;smallNextArrow.png
+
 #begin ash.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -486,7 +498,7 @@
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
-/build:outside.png
+/build:outside.png;outsideScreen.png
 
 #begin ovalHighlight.png
 /importer:TextureImporter
