@@ -1,5 +1,7 @@
 ﻿using frog.Screens;
 using frog.Things;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Input;
 
 namespace frog
 {
@@ -8,7 +10,6 @@ namespace frog
         public IStage CurrentStage { get; set; }
 
         public Character Player { get; set; }
-        //public enum GameStage { TitleScreen, CharacterCreation, Occupation, MainGame };
 
         public GameState()
         {

@@ -29,9 +29,10 @@ namespace frog.Screens
         private List<Texture2D> _smallCharacterTextureOptions = new List<Texture2D>();
         private Texture2D _nextButton;
         private ContentManager _contentManager;
+        private GraphicsDeviceManager _graphicsDeviceManager;
         private OccupationScreen.Factory _occupationScreenFactory;
 
-        public CharacterScreen(SpriteBatch spriteBatch, ContentManager contentManager, GameState gameState, OccupationScreen.Factory occupationScreenFactory)
+        public CharacterScreen(SpriteBatch spriteBatch, ContentManager contentManager, GameState gameState, OccupationScreen.Factory occupationScreenFactory, GraphicsDeviceManager graphicsDeviceManager)
         {
             _contentManager = contentManager;
 
@@ -61,6 +62,7 @@ namespace frog.Screens
             _spriteBatch = spriteBatch;
             _gameState = gameState;
             _occupationScreenFactory = occupationScreenFactory;
+            _graphicsDeviceManager = graphicsDeviceManager;
         }
 
         public void Draw()
@@ -200,7 +202,7 @@ namespace frog.Screens
                     if (mouseState.X > 521 && mouseState.X < 779)
                     {
                         //_gameState.CurrentStage = GameStage.Occupation;
-                        _gameState.Player = new Character("test", _characterCreationSelectedPronoun, _smallCharacterTextureOptions[_characterPointer], _characterTextureOptions[_characterPointer]);
+                        _gameState.Player = new Character("test", _characterCreationSelectedPronoun, _smallCharacterTextureOptions[_characterPointer], _characterTextureOptions[_characterPointer], _graphicsDeviceManager);
                         _gameState.CurrentStage = _occupationScreenFactory();
                     }
                 }
