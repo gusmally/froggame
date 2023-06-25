@@ -21,6 +21,7 @@ namespace frog.Things
         public SpriteEffects SpriteEffects { get; set; } = SpriteEffects.None;
 
         public Vector2 Position;
+        public float Speed => _frogSpeed;
 
         private const float _frogSpeed = 100f;
         private int _preferredBackBufferWidth;
@@ -43,8 +44,6 @@ namespace frog.Things
 
             switch (pronoun)
             {
-                case Pronoun.Custom: // define this later
-                    break;
                 case Pronoun.He:
                     var hePronouns = new Dictionary<PronounType, string>();
                     hePronouns.Add(PronounType.Subject, "he");

@@ -109,9 +109,6 @@ namespace frog.Screens
                 case Pronoun.They:
                     _spriteBatch.Draw(_theyHighlight, new Vector2(0, -132), Color.AliceBlue);
                     break;
-                case Pronoun.Custom:
-                    _spriteBatch.Draw(_customHighlight, new Vector2(0, -132), Color.AliceBlue);
-                    break;
             }
 
             // ready button
@@ -185,14 +182,6 @@ namespace frog.Screens
                     if (mouseState.X > 602 && mouseState.X < 785)
                     {
                         _characterCreationSelectedPronoun = Pronoun.They;
-                    }
-                }
-                // custom button
-                if (mouseState.Y > 373 && mouseState.Y < 453)
-                {
-                    if (mouseState.X > 586 && mouseState.X < 800)
-                    {
-                        _characterCreationSelectedPronoun = Pronoun.Custom;
                     }
                 }
 

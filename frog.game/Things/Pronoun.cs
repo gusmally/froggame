@@ -5,7 +5,7 @@
         She,
         He,
         They,
-        Custom
+        //Custom (not for v0.1)
     }
 
     public enum PronounType
