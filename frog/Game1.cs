@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Input;
 
 namespace frog
 {
-    public partial class Game1 : Game
+    public partial class Game1 : Microsoft.Xna.Framework.Game
     {
         public delegate Game1 Factory();
 
