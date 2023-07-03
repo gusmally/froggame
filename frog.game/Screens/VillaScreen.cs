@@ -22,8 +22,7 @@ namespace frog.Screens
             _gameState = gameState;
             _graphics = graphics;
 
-            _gameState.Player.Position = new Vector2(_graphics.PreferredBackBufferWidth / 2,
-                _graphics.PreferredBackBufferHeight / 2);
+            _gameState.Player.Position = new Vector2(560, 125);
 
             _backgroundTexture = contentManager.Load<Texture2D>("mainBackground");
         }
@@ -31,11 +30,7 @@ namespace frog.Screens
         public void Draw()
         {
             _spriteBatch.Draw(_backgroundTexture, new Vector2(0, 0), Color.AliceBlue);
-            _spriteBatch.Draw(_gameState.Player.SmallSprite, _gameState.Player.Position, null, Color.White, 0f,
-                new Vector2(_gameState.Player.SmallSprite.Width / 2, _gameState.Player.SmallSprite.Height / 2),
-                new Vector2(2, 2),
-                _gameState.Player.SpriteEffects,
-                0f);
+            _gameState.Player.Draw();
         }
 
         public void UpdateClick(MouseState mouseState)

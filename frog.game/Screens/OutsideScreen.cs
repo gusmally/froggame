@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using frog.game.Screens.Text;
 using frog.Screens.Util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
@@ -17,7 +18,8 @@ namespace frog.Screens
         private SpriteBatch _spriteBatch;
         private ContentManager _contentManager;
         private VillaScreen.Factory _villaScreenFactory;
-        private SpriteFont _font;
+        private DialogDisplay _dialogDisplay;
+        private HintDisplay _hintDisplay;
         private GraphicsDeviceManager _graphics;
         private Texture2D _outsideTexture;
         private Button _nextButton;
@@ -35,15 +37,17 @@ namespace frog.Screens
         public OutsideScreen(GameState gameState, 
             SpriteBatch spriteBatch, 
             ContentManager contentManager, 
-            VillaScreen.Factory villaScreenFactory, 
-            SpriteFont font, 
+            VillaScreen.Factory villaScreenFactory,
+            DialogDisplay dialogDisplay,
+            HintDisplay hintDisplay,
             GraphicsDeviceManager graphics)
         {
             _gameState = gameState;
             _villaScreenFactory = villaScreenFactory;
+            _dialogDisplay = dialogDisplay;
+            _hintDisplay = hintDisplay;
             _spriteBatch = spriteBatch;
             _contentManager = contentManager;
-            _font = font;
             _graphics = graphics;
 
             _outsideTexture = _contentManager.Load<Texture2D>("outsideScreen");
@@ -66,28 +70,10 @@ namespace frog.Screens
             }
             else
             {
-                _spriteBatch.DrawString(_font,
-                    "use arrow keys to move",
-                    new Vector2(_nextButton.Viewport.X, _nextButton.Viewport.Y),
-                    Color.White,
-                    0,
-                    new Vector2(0, 0),
-                    0.5f,
-                    SpriteEffects.None,
-                    0.5f);
+                _hintDisplay.Draw("use arrow keys to move");
             }
 
-            // todo: measure the string and draw it appropriately-- a helper class
-            // would be good for this
-            _spriteBatch.DrawString(_font,
-                _introText[_introTextIndex],
-                new Vector2(60, 435),
-                Color.White,
-                0,
-                new Vector2(0,0),
-                0.5f,
-                SpriteEffects.None,
-                0.5f);
+            _dialogDisplay.Draw(_introText[_introTextIndex]);
 
             _spriteBatch.Draw(_gameState.Player.SmallSprite, _gameState.Player.Position, null, Color.White, 0f,
                 new Vector2(_gameState.Player.SmallSprite.Width / 2, _gameState.Player.SmallSprite.Height / 2),
@@ -102,8 +88,6 @@ namespace frog.Screens
                 _gameState.Player.Position.Y >= 240 &&
                 _gameState.Player.Position.Y <= 280)
             {
-
-
                 // move to the next view or whatever
                 // maybe create an object to hold events that happen, a "slide"?
                 // - animation

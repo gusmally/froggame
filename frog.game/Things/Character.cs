@@ -26,12 +26,14 @@ namespace frog.Things
         private const float _frogSpeed = 100f;
         private int _preferredBackBufferWidth;
         private int _preferredBackBufferHeight;
+        private SpriteBatch _spriteBatch;
 
         public Character(string name,
                          Pronoun pronoun,
                          Texture2D smallSprite,
                          Texture2D largeSprite,
                          GraphicsDeviceManager graphicsDeviceManager,
+                         SpriteBatch spriteBatch,
                          Occupation occupation = null)
         {
             this.Name = name;
@@ -41,6 +43,7 @@ namespace frog.Things
             this.Occupation = occupation;
             _preferredBackBufferWidth = graphicsDeviceManager.PreferredBackBufferWidth;
             _preferredBackBufferHeight = graphicsDeviceManager.PreferredBackBufferHeight;
+            _spriteBatch = spriteBatch;
 
             switch (pronoun)
             {
@@ -72,6 +75,15 @@ namespace frog.Things
                     this.Pronouns = (Pronoun.They, theyPronouns);
                     break;
             }
+        }
+
+        public void Draw()
+        {
+            _spriteBatch.Draw(this.SmallSprite, this.Position, null, Color.White, 0f,
+                              new Vector2(this.SmallSprite.Width / 2, this.SmallSprite.Height / 2),
+                              new Vector2(2, 2),
+                              this.SpriteEffects,
+                              0f);
         }
 
         public void UpdateKeyboard(KeyboardState keyboardState, GameTime gameTime)

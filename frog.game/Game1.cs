@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Autofac;
+using frog.game.Screens.Text;
 using frog.Screens;
 using frog.Things;
 using Microsoft.Xna.Framework;
@@ -7,7 +8,7 @@ using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace frog
+namespace frog.game
 {
     public partial class Game1 : Game
     {
@@ -48,6 +49,8 @@ namespace frog
             builder.RegisterType<VillaScreen>().SingleInstance();
             builder.RegisterType<SpriteBatch>().SingleInstance();
             builder.RegisterType<Character>().SingleInstance();
+            builder.RegisterType<DialogDisplay>().SingleInstance();
+            builder.RegisterType<HintDisplay>().SingleInstance();
             builder.Register((c, p) => this.Content.Load<SpriteFont>("dearLovely")).As<SpriteFont>();
             builder.RegisterInstance(this.Content).As<ContentManager>().SingleInstance();
             builder.Register((c, p) => new GraphicsDeviceManager(this)).As<GraphicsDeviceManager>().SingleInstance();
@@ -59,6 +62,10 @@ namespace frog
         {
             _spriteBatch = _container.Resolve<SpriteBatch>(new List<NamedParameter>(){ new NamedParameter("graphicsDevice", this.GraphicsDevice)});
             _characterFactory = _container.Resolve<Character.Factory>();
+            var dialogFactory = _container.Resolve<DialogDisplay.Factory>();
+            dialogFactory(new Vector2(60, 435));
+            var hintFactory = _container.Resolve<HintDisplay.Factory>();
+            hintFactory(new Vector2(80, 200));
 
             _graphics.PreferredBackBufferWidth = 800;
             _graphics.PreferredBackBufferHeight = 600;

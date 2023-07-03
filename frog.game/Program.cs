@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace frog
+namespace frog.game
 {
     public static class Program
     {

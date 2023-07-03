@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using frog.Things;
+﻿using frog.Things;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace frog.Screens
 {
@@ -31,10 +32,17 @@ namespace frog.Screens
         private ContentManager _contentManager;
         private GraphicsDeviceManager _graphicsDeviceManager;
         private OccupationScreen.Factory _occupationScreenFactory;
+        private Character.Factory _characterFactory;
 
-        public CharacterScreen(SpriteBatch spriteBatch, ContentManager contentManager, GameState gameState, OccupationScreen.Factory occupationScreenFactory, GraphicsDeviceManager graphicsDeviceManager)
+        public CharacterScreen(SpriteBatch spriteBatch, 
+            ContentManager contentManager,
+            GameState gameState,
+            OccupationScreen.Factory occupationScreenFactory, 
+            Character.Factory characterFactory,
+            GraphicsDeviceManager graphicsDeviceManager)
         {
             _contentManager = contentManager;
+            _characterFactory = characterFactory;
 
             // character creation
             _characterCreationTexture = _contentManager.Load<Texture2D>("characterCreation");
@@ -101,13 +109,13 @@ namespace frog.Screens
             switch (_characterCreationSelectedPronoun)
             {
                 case Pronoun.She:
-                    _spriteBatch.Draw(_sheHighlight, new Vector2(0, -132), Color.AliceBlue);
+                     _spriteBatch.Draw(_sheHighlight, new Vector2(15, -117), Color.AliceBlue);
                     break;
                 case Pronoun.He:
-                    _spriteBatch.Draw(_heHighlight, new Vector2(0, -132), Color.AliceBlue);
+                    _spriteBatch.Draw(_heHighlight, new Vector2(214, -234), Color.AliceBlue);
                     break;
                 case Pronoun.They:
-                    _spriteBatch.Draw(_theyHighlight, new Vector2(0, -132), Color.AliceBlue);
+                    _spriteBatch.Draw(_theyHighlight, new Vector2(-104, 37), Color.AliceBlue);
                     break;
             }
 
@@ -124,6 +132,8 @@ namespace frog.Screens
 
         public void UpdateClick(MouseState mouseState)
         {
+            Debug.WriteLine(mouseState.ToString());
+
             // skin buttons
             if (mouseState.LeftButton == ButtonState.Pressed)
             {
@@ -161,25 +171,25 @@ namespace frog.Screens
                 }
 
                 // she button
-                if (mouseState.Y > 221 && mouseState.Y < 301)
+                if (mouseState.Y > 235 && mouseState.Y < 306)
                 {
-                    if (mouseState.X > 426 && mouseState.X < 563)
+                    if (mouseState.X > 431 && mouseState.X < 570)
                     {
                         _characterCreationSelectedPronoun = Pronoun.She;
                     }
                 }
                 // he button
-                if (mouseState.Y > 343 && mouseState.Y < 435)
+                if (mouseState.Y > 243 && mouseState.Y < 327)
                 {
-                    if (mouseState.X > 415 && mouseState.X < 554)
+                    if (mouseState.X > 633 && mouseState.X < 762)
                     {
                         _characterCreationSelectedPronoun = Pronoun.He;
                     }
                 }
                 // they button
-                if (mouseState.Y > 201 && mouseState.Y < 327)
+                if (mouseState.Y > 367 && mouseState.Y < 493)
                 {
-                    if (mouseState.X > 602 && mouseState.X < 785)
+                    if (mouseState.X > 500 && mouseState.X < 680)
                     {
                         _characterCreationSelectedPronoun = Pronoun.They;
                     }
@@ -190,8 +200,7 @@ namespace frog.Screens
                 {
                     if (mouseState.X > 521 && mouseState.X < 779)
                     {
-                        //_gameState.CurrentStage = GameStage.Occupation;
-                        _gameState.Player = new Character("test", _characterCreationSelectedPronoun, _smallCharacterTextureOptions[_characterPointer], _characterTextureOptions[_characterPointer], _graphicsDeviceManager);
+                        _gameState.Player = _characterFactory("test", _characterCreationSelectedPronoun, _smallCharacterTextureOptions[_characterPointer], _characterTextureOptions[_characterPointer]);
                         _gameState.CurrentStage = _occupationScreenFactory();
                     }
                 }
